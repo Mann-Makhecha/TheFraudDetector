@@ -9,13 +9,13 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils.data_loader import load_data
 
-st.title("🏠 Home")
+st.title("Home")
 st.markdown("---")
 
 # ---- Hero Section ----
 st.markdown(
     """
-    ## 🛡️ Fraud Transaction Detector
+    ## Fraud Transaction Detector
     > *Identifying fraudulent credit card transactions using Machine Learning*
 
     Payment fraud causes **massive financial losses** globally — estimated at over
@@ -26,7 +26,7 @@ st.markdown(
 )
 
 # ---- Dataset Summary ----
-st.markdown("### 📊 Dataset Overview")
+st.markdown("### Dataset Overview")
 
 df = load_data()
 
@@ -55,7 +55,7 @@ st.markdown(
 )
 
 # ---- Business Problem ----
-st.markdown("### 💼 Business Problem")
+st.markdown("### Business Problem")
 st.info(
     "Credit card fraud is a growing threat in the digital economy. "
     "Traditional rule-based systems fail to keep pace with evolving fraud tactics. "
@@ -64,24 +64,17 @@ st.info(
 )
 
 # ---- Team Information ----
-st.markdown("### 👥 Team Information")
+st.markdown("### Team Information")
 team_data = {
-    "Role": ["ML Engineer", "Data Analyst", "Frontend Developer", "Project Lead"],
-    "Name": ["Alex Johnson", "Maria Chen", "David Kim", "Sarah Williams"],
-    "Responsibility": [
-        "Model development & pipeline",
-        "EDA & feature engineering",
-        "Streamlit UI & visualisation",
-        "Planning, QA & delivery",
-    ],
+    "Name": ["Samkit Jain", "Mann Makhecha", "Krish Jain", "Chirag Gupta", "Het Malvaniya", "Dhiraj Jagwani"],
 }
 st.table(team_data)
 
 # ---- Tech Stack ----
-st.markdown("### 🛠️ Tech Stack")
+st.markdown("### Tech Stack")
 t1, t2, t3, t4, t5 = st.columns(5)
-t1.markdown("🐍 **Python**")
-t2.markdown("🎈 **Streamlit**")
-t3.markdown("🤖 **Scikit-learn**")
-t4.markdown("🐼 **Pandas / NumPy**")
-t5.markdown("📊 **Matplotlib / Seaborn**")
+t1.markdown("![Python](https://img.icons8.com/color/28/python.png) **Python**")
+t2.markdown("![Streamlit](https://img.icons8.com/color/28/streamlit.png) **Streamlit**")
+t3.markdown("![Scikit](https://img.icons8.com/color/28/artificial-intelligence.png) **Scikit-learn**")
+t4.markdown("![Pandas](https://img.icons8.com/color/28/pandas.png) **Pandas / NumPy**")
+t5.markdown("![Chart](https://img.icons8.com/color/28/combo-chart.png) **Matplotlib / Seaborn**")

@@ -14,7 +14,7 @@ from utils.data_loader import load_data, engineer_features, get_model_features
 from utils.model_utils import train_model, evaluate_model, save_model
 from utils.visualizations import plot_confusion_matrix
 
-st.title("🤖 Model Training")
+st.title("Model Training")
 st.markdown("---")
 
 # ---- Initialise session state ----
@@ -26,7 +26,7 @@ if "model_params" not in st.session_state:
     st.session_state["model_params"] = {}     # {name: params_dict}
 
 # ---- Sidebar controls ----
-st.sidebar.header("⚙️ Training Settings")
+st.sidebar.header("Training Settings")
 
 model_name = st.sidebar.radio(
     "Select Model",
@@ -63,7 +63,7 @@ st.markdown(f"### Training: **{model_name}**")
 st.markdown("**Hyperparameters:**")
 st.json(params)
 
-if st.button("🚀 Train Model", type="primary", use_container_width=True):
+if st.button("Train Model", type="primary", use_container_width=True):
     progress = st.progress(0, text="Loading data…")
     X_train, X_test, y_train, y_test, feature_names = prepare_data(test_size)
     progress.progress(20, text="Data ready. Training model…")
@@ -73,7 +73,7 @@ if st.button("🚀 Train Model", type="primary", use_container_width=True):
     progress.progress(70, text="Evaluating model…")
 
     metrics, cm, report = evaluate_model(model, X_test, y_test)
-    progress.progress(100, text="Done ✅")
+    progress.progress(100, text="Done")
 
     # Persist results
     save_model(model, model_name)
@@ -83,23 +83,23 @@ if st.button("🚀 Train Model", type="primary", use_container_width=True):
     st.session_state["feature_names"] = feature_names
 
     # ---- Display results ----
-    st.success(f"✅ **{model_name}** trained in **{elapsed:.2f}s**")
+    st.success(f"**{model_name}** trained in **{elapsed:.2f}s**")
 
-    st.markdown("#### 📈 Performance Metrics")
+    st.markdown("#### Performance Metrics")
     met_cols = st.columns(4)
     for i, (k, v) in enumerate(metrics.items()):
         met_cols[i].metric(k, f"{v:.4f}")
 
-    st.markdown("#### 🔢 Confusion Matrix")
+    st.markdown("#### Confusion Matrix")
     st.pyplot(plot_confusion_matrix(cm))
 
-    st.markdown("#### 📋 Classification Report")
+    st.markdown("#### Classification Report")
     st.code(report)
 
 # ---- Show previously trained models ----
 if st.session_state["model_metrics"]:
     st.markdown("---")
-    st.markdown("### 📦 Trained Models in This Session")
+    st.markdown("### Trained Models in This Session")
     for mname, mmetrics in st.session_state["model_metrics"].items():
         with st.expander(f"{mname}"):
             st.json({"params": st.session_state["model_params"].get(mname, {}),

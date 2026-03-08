@@ -69,16 +69,17 @@ def _haversine(lat1, lon1, lat2, lon2):
     return R * 2 * np.arcsin(np.sqrt(a))
 
 
-@st.cache_data(show_spinner="Engineering features…")
+@st.cache_data(show_spinner="Engineering features…", ttl=3600)
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     """Add derived columns used for EDA and modelling."""
     df = df.copy()
-    df["hour"] = df["trans_date_trans_time"].dt.hour
-    df["day_of_week"] = df["trans_date_trans_time"].dt.dayofweek  # 0=Mon
-    df["month"] = df["trans_date_trans_time"].dt.month
+    dt = df["trans_date_trans_time"]
+    df["hour"] = dt.dt.hour.astype("int8")
+    df["day_of_week"] = dt.dt.dayofweek.astype("int8")  # 0=Mon
+    df["month"] = dt.dt.month.astype("int8")
     # Age in years at time of transaction
     df["age"] = (
-        (df["trans_date_trans_time"] - df["dob"]).dt.days / 365.25
+        (dt - df["dob"]).dt.days / 365.25
     ).astype("float32")
     # Distance between cardholder and merchant
     df["distance_km"] = _haversine(
@@ -99,7 +100,7 @@ NUMERIC_FEATURES = [
 ]
 
 
-@st.cache_data(show_spinner="Preparing model features…")
+@st.cache_data(show_spinner="Preparing model features…", ttl=3600)
 def get_model_features(df: pd.DataFrame):
     """
     Return (X, y, feature_names).

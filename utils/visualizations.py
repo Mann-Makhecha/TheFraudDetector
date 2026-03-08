@@ -15,7 +15,10 @@ sns.set_theme(style="whitegrid", palette="muted")
 FRAUD_PALETTE = {0: "#2ecc71", 1: "#e74c3c"}
 FRAUD_LABELS = {0: "Legitimate", 1: "Fraud"}
 
+import streamlit as st
 
+
+@st.cache_data(show_spinner=False)
 def plot_fraud_countplot(df: pd.DataFrame):
     """1. Countplot — Fraud vs. Non-fraud distribution."""
     fig, ax = plt.subplots(figsize=(6, 4))
@@ -36,6 +39,7 @@ def plot_fraud_countplot(df: pd.DataFrame):
     return fig
 
 
+@st.cache_data(show_spinner=False)
 def plot_fraud_rate_by_category(df: pd.DataFrame):
     """2. Bar chart — Fraud rate (%) per merchant category."""
     fraud_rate = (
@@ -58,6 +62,7 @@ def plot_fraud_rate_by_category(df: pd.DataFrame):
     return fig
 
 
+@st.cache_data(show_spinner=False)
 def plot_amount_histogram(df: pd.DataFrame):
     """3. Histogram — Transaction amount for Fraud vs. Legitimate."""
     fig, ax = plt.subplots(figsize=(8, 4))
@@ -74,6 +79,7 @@ def plot_amount_histogram(df: pd.DataFrame):
     return fig
 
 
+@st.cache_data(show_spinner=False)
 def plot_amount_boxplot(df: pd.DataFrame):
     """4. Box plot — Transaction amount by fraud label."""
     fig, ax = plt.subplots(figsize=(6, 4))
@@ -89,6 +95,7 @@ def plot_amount_boxplot(df: pd.DataFrame):
     return fig
 
 
+@st.cache_data(show_spinner=False)
 def plot_fraud_heatmap(df: pd.DataFrame):
     """5. Heatmap — Fraud count by Hour of Day vs. Day of Week."""
     day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -111,6 +118,7 @@ def plot_fraud_heatmap(df: pd.DataFrame):
     return fig
 
 
+@st.cache_data(show_spinner=False)
 def plot_top_states(df: pd.DataFrame, top_n: int = 15):
     """6. Bar chart — Top states by fraud count."""
     fraud_only = df[df["is_fraud"] == 1]
@@ -129,6 +137,7 @@ def plot_top_states(df: pd.DataFrame, top_n: int = 15):
     return fig
 
 
+@st.cache_data(show_spinner=False)
 def plot_fraud_over_time(df: pd.DataFrame):
     """7. Line chart — Monthly fraud transaction volume over time."""
     fraud_only = df[df["is_fraud"] == 1].copy()

@@ -10,7 +10,7 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils.visualizations import plot_model_comparison
 
-st.title("📊 Model Comparison")
+st.title("Model Comparison")
 st.markdown("---")
 
 # ---- Check for trained models ----
@@ -18,19 +18,19 @@ metrics = st.session_state.get("model_metrics", {})
 
 if len(metrics) == 0:
     st.warning(
-        "⚠️ No models have been trained yet. "
+        "No models have been trained yet. "
         "Go to the **Model Training** page and train at least one model."
     )
     st.stop()
 
 if len(metrics) == 1:
     st.info(
-        "ℹ️ Only one model has been trained so far. "
+        "Only one model has been trained so far. "
         "Train additional models for a meaningful comparison."
     )
 
 # ---- Metrics table ----
-st.markdown("### 📋 Metrics Summary")
+st.markdown("### Metrics Summary")
 metrics_df = pd.DataFrame(metrics).T
 metrics_df.index.name = "Model"
 metrics_df = metrics_df[["Precision", "Recall", "F1-Score", "ROC-AUC"]]
@@ -46,18 +46,18 @@ st.dataframe(
 )
 
 # ---- Grouped bar chart ----
-st.markdown("### 📊 Visual Comparison")
+st.markdown("### Visual Comparison")
 fig = plot_model_comparison(metrics)
 st.pyplot(fig)
 
 # ---- Best model callout ----
 st.markdown("---")
-st.markdown("### 🏆 Best Model Selection")
+st.markdown("### Best Model Selection")
 
 best_name = max(metrics, key=lambda m: metrics[m].get("Recall", 0))
 best_recall = metrics[best_name]["Recall"]
 
-st.success(f"🏆 **Best Model: {best_name}** — Recall: **{best_recall:.4f}**")
+st.success(f"**Best Model: {best_name}** — Recall: **{best_recall:.4f}**")
 st.markdown(
     f"""
     **Why {best_name}?**
@@ -78,10 +78,10 @@ st.markdown(
 
 # ---- Individual model details ----
 st.markdown("---")
-st.markdown("### 🔎 Model Details")
+st.markdown("### Model Details")
 params = st.session_state.get("model_params", {})
 for mname in metrics:
-    with st.expander(f"📦 {mname}"):
+    with st.expander(f"{mname}"):
         dcol1, dcol2 = st.columns(2)
         with dcol1:
             st.markdown("**Hyperparameters**")

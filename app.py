@@ -7,19 +7,19 @@ import streamlit as st
 
 st.set_page_config(
     page_title="Fraud Transaction Detector",
-    page_icon="🛡️",
+    page_icon="https://img.icons8.com/fluency/48/security-checked.png",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ---- Sidebar branding ----
 st.sidebar.image("https://img.icons8.com/fluency/96/security-checked.png", width=72)
-st.sidebar.title("🛡️ Fraud Detector")
+st.sidebar.title("Fraud Detector")
 st.sidebar.markdown("---")
 st.sidebar.caption("Navigate using the pages above.")
 
 # ---- Landing content (shown when no page is selected) ----
-st.title("🛡️ Fraud Transaction Detector")
+st.title("Fraud Transaction Detector")
 st.markdown(
     """
     Welcome to the **Fraud Transaction Detector** dashboard.  

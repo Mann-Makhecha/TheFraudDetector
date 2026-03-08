@@ -9,13 +9,13 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils.data_loader import CATEGORIES, build_single_row
 
-st.title("🔮 Live Fraud Prediction")
+st.title("Live Fraud Prediction")
 st.markdown("---")
 
 # ---- Check for trained models ----
 if "trained_models" not in st.session_state or not st.session_state["trained_models"]:
     st.warning(
-        "⚠️ No models have been trained yet. "
+        "No models have been trained yet. "
         "Please go to the **Model Training** page and train at least one model first."
     )
     st.stop()
@@ -57,7 +57,7 @@ with st.form("prediction_form"):
             distance_km = st.number_input("Distance to Merchant (km)", min_value=0.0,
                                           max_value=500.0, value=30.0, step=1.0)
 
-    submitted = st.form_submit_button("🔍 Predict", type="primary", use_container_width=True)
+    submitted = st.form_submit_button("Predict", type="primary", use_container_width=True)
 
 # ---- Prediction output ----
 if submitted:
@@ -72,15 +72,15 @@ if submitted:
     risk_pct = proba * 100
 
     st.markdown("---")
-    st.markdown("### 🏷️ Prediction Result")
+    st.markdown("### Prediction Result")
 
     res_col1, res_col2 = st.columns(2)
 
     with res_col1:
         if prediction == 0:
-            st.success("✅ **Legitimate Transaction**")
+            st.success("**Legitimate Transaction**")
         else:
-            st.error("🚨 **Suspicious — Potential Fraud!**")
+            st.error("**Suspicious — Potential Fraud!**")
 
     with res_col2:
         st.metric("Risk Score", f"{risk_pct:.1f}%")
@@ -90,10 +90,10 @@ if submitted:
     st.progress(min(proba, 1.0))
 
     if risk_pct < 25:
-        st.caption("🟢 Low risk — transaction appears normal.")
+        st.caption("Low risk — transaction appears normal.")
     elif risk_pct < 50:
-        st.caption("🟡 Moderate risk — consider additional verification.")
+        st.caption("Moderate risk — consider additional verification.")
     elif risk_pct < 75:
-        st.caption("🟠 High risk — manual review recommended.")
+        st.caption("High risk — manual review recommended.")
     else:
-        st.caption("🔴 Very high risk — strong indicators of fraud.")
+        st.caption("Very high risk — strong indicators of fraud.")
