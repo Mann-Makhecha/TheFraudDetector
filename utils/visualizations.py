@@ -1,5 +1,5 @@
 """
-Reusable visualisation functions for the EDA page.
+Reusable visualisation functions for all pages.
 Each function returns a matplotlib Figure so the caller can do st.pyplot(fig).
 """
 
@@ -18,7 +18,10 @@ FRAUD_LABELS = {0: "Legitimate", 1: "Fraud"}
 import streamlit as st
 
 
-@st.cache_data(show_spinner=False)
+# ===================================================================
+# EDA Charts
+# ===================================================================
+
 def plot_fraud_countplot(df: pd.DataFrame):
     """1. Countplot — Fraud vs. Non-fraud distribution."""
     fig, ax = plt.subplots(figsize=(6, 4))
@@ -39,7 +42,6 @@ def plot_fraud_countplot(df: pd.DataFrame):
     return fig
 
 
-@st.cache_data(show_spinner=False)
 def plot_fraud_rate_by_category(df: pd.DataFrame):
     """2. Bar chart — Fraud rate (%) per merchant category."""
     fraud_rate = (
@@ -62,7 +64,6 @@ def plot_fraud_rate_by_category(df: pd.DataFrame):
     return fig
 
 
-@st.cache_data(show_spinner=False)
 def plot_amount_histogram(df: pd.DataFrame):
     """3. Histogram — Transaction amount for Fraud vs. Legitimate."""
     fig, ax = plt.subplots(figsize=(8, 4))
@@ -79,7 +80,6 @@ def plot_amount_histogram(df: pd.DataFrame):
     return fig
 
 
-@st.cache_data(show_spinner=False)
 def plot_amount_boxplot(df: pd.DataFrame):
     """4. Box plot — Transaction amount by fraud label."""
     fig, ax = plt.subplots(figsize=(6, 4))
@@ -95,7 +95,6 @@ def plot_amount_boxplot(df: pd.DataFrame):
     return fig
 
 
-@st.cache_data(show_spinner=False)
 def plot_fraud_heatmap(df: pd.DataFrame):
     """5. Heatmap — Fraud count by Hour of Day vs. Day of Week."""
     day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -118,7 +117,6 @@ def plot_fraud_heatmap(df: pd.DataFrame):
     return fig
 
 
-@st.cache_data(show_spinner=False)
 def plot_top_states(df: pd.DataFrame, top_n: int = 15):
     """6. Bar chart — Top states by fraud count."""
     fraud_only = df[df["is_fraud"] == 1]
@@ -137,7 +135,6 @@ def plot_top_states(df: pd.DataFrame, top_n: int = 15):
     return fig
 
 
-@st.cache_data(show_spinner=False)
 def plot_fraud_over_time(df: pd.DataFrame):
     """7. Line chart — Monthly fraud transaction volume over time."""
     fraud_only = df[df["is_fraud"] == 1].copy()
@@ -158,8 +155,12 @@ def plot_fraud_over_time(df: pd.DataFrame):
     return fig
 
 
+# ===================================================================
+# Model Charts
+# ===================================================================
+
 def plot_confusion_matrix(cm, labels=None):
-    """Confusion matrix heatmap for the model training page."""
+    """Confusion matrix heatmap."""
     if labels is None:
         labels = ["Legitimate", "Fraud"]
     fig, ax = plt.subplots(figsize=(5, 4))
@@ -173,10 +174,7 @@ def plot_confusion_matrix(cm, labels=None):
 
 
 def plot_model_comparison(metrics_dict: dict):
-    """
-    Grouped bar chart comparing models on Precision, Recall, F1, ROC-AUC.
-    metrics_dict: {model_name: {metric_name: value, ...}, ...}
-    """
+    """Grouped bar chart comparing models on Precision, Recall, F1, ROC-AUC."""
     metric_names = ["Precision", "Recall", "F1-Score", "ROC-AUC"]
     model_names = list(metrics_dict.keys())
     n_metrics = len(metric_names)
@@ -202,5 +200,93 @@ def plot_model_comparison(metrics_dict: dict):
     ax.set_ylabel("Score")
     ax.set_title("Model Comparison — Precision · Recall · F1 · ROC-AUC")
     ax.legend(loc="upper right")
+    fig.tight_layout()
+    return fig
+
+
+def plot_roc_curves(all_results: dict):
+    """Overlay ROC curves for all trained models."""
+    colors = {"Logistic Regression": "#3498db", "Decision Tree": "#2ecc71", "Random Forest": "#e67e22"}
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    for name, res in all_results.items():
+        fpr = res["fpr"]
+        tpr = res["tpr"]
+        auc_val = res["metrics"]["ROC-AUC"]
+        color = colors.get(name, "#9b59b6")
+        ax.plot(fpr, tpr, label=f"{name} (AUC = {auc_val:.4f})", color=color, linewidth=2)
+
+    ax.plot([0, 1], [0, 1], "k--", alpha=0.4, label="Random Classifier")
+    ax.set_xlabel("False Positive Rate")
+    ax.set_ylabel("True Positive Rate")
+    ax.set_title("ROC Curves — All Models")
+    ax.legend(loc="lower right")
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    return fig
+
+
+def plot_precision_recall_curves(all_results: dict):
+    """Overlay Precision-Recall curves for all trained models."""
+    colors = {"Logistic Regression": "#3498db", "Decision Tree": "#2ecc71", "Random Forest": "#e67e22"}
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    for name, res in all_results.items():
+        pr_prec = res["pr_precision"]
+        pr_rec = res["pr_recall"]
+        color = colors.get(name, "#9b59b6")
+        ax.plot(pr_rec, pr_prec, label=name, color=color, linewidth=2)
+
+    ax.set_xlabel("Recall")
+    ax.set_ylabel("Precision")
+    ax.set_title("Precision-Recall Curves — All Models")
+    ax.legend(loc="upper right")
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    return fig
+
+
+def plot_feature_importance(feat_importance: dict, top_n: int = 15):
+    """Horizontal bar chart of top N feature importances."""
+    if feat_importance is None:
+        return None
+
+    sorted_feats = sorted(feat_importance.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    names = [f[0] for f in sorted_feats]
+    values = [f[1] for f in sorted_feats]
+
+    fig, ax = plt.subplots(figsize=(10, max(4, top_n * 0.35)))
+    bars = ax.barh(range(len(names)), values, color="#3498db", edgecolor="white")
+    ax.set_yticks(range(len(names)))
+    ax.set_yticklabels(names)
+    ax.invert_yaxis()
+    ax.set_xlabel("Importance")
+    ax.set_title(f"Top {top_n} Feature Importances")
+
+    for i, (bar, val) in enumerate(zip(bars, values)):
+        ax.text(val + 0.001, i, f"{val:.4f}", va="center", fontsize=9)
+
+    fig.tight_layout()
+    return fig
+
+
+def plot_class_distribution_pie(fraud_count: int, legit_count: int):
+    """Pie chart showing class distribution."""
+    fig, ax = plt.subplots(figsize=(6, 5))
+    sizes = [legit_count, fraud_count]
+    labels = [f"Legitimate\n({legit_count:,})", f"Fraud\n({fraud_count:,})"]
+    colors = ["#2ecc71", "#e74c3c"]
+    explode = (0, 0.08)
+
+    wedges, texts, autotexts = ax.pie(
+        sizes, explode=explode, labels=labels, colors=colors,
+        autopct="%1.2f%%", shadow=True, startangle=90,
+        textprops={"fontsize": 11},
+    )
+    for autotext in autotexts:
+        autotext.set_fontweight("bold")
+        autotext.set_fontsize(12)
+
+    ax.set_title("Class Distribution: Fraud vs. Legitimate", fontsize=13, fontweight="bold")
     fig.tight_layout()
     return fig

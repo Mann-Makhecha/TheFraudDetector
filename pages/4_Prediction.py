@@ -1,6 +1,7 @@
 """
 Page 4 — Prediction (Live Interface)
-Accept user inputs, run the best trained model, display result and risk score.
+Accept user inputs, run a selected model, display result and risk score.
+Models are loaded from session state (pre-trained on first launch).
 """
 
 import streamlit as st
@@ -9,23 +10,50 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from utils.data_loader import CATEGORIES, build_single_row
 
-st.title("Live Fraud Prediction")
+st.title(" Live Fraud Prediction")
 st.markdown("---")
 
 # ---- Check for trained models ----
-if "trained_models" not in st.session_state or not st.session_state["trained_models"]:
+all_results = st.session_state.get("all_results")
+if not all_results:
     st.warning(
-        "No models have been trained yet. "
-        "Please go to the **Model Training** page and train at least one model first."
+        "Models have not been loaded yet. "
+        "Please go to the **main page** first to trigger model loading."
     )
     st.stop()
 
-# ---- Pick best model (highest Recall) ----
-metrics = st.session_state.get("model_metrics", {})
-best_name = max(metrics, key=lambda m: metrics[m].get("Recall", 0))
-best_model = st.session_state["trained_models"][best_name]
+# ---- Model selector ----
+st.sidebar.header("Prediction Settings")
+model_names = list(all_results.keys())
 
-st.info(f"Using **{best_name}** (Recall = {metrics[best_name]['Recall']:.4f}) for predictions.")
+# Default to best recall model
+metrics = {name: res["metrics"] for name, res in all_results.items()}
+best_name = max(metrics, key=lambda m: metrics[m].get("Recall", 0))
+default_idx = model_names.index(best_name)
+
+selected_model_name = st.sidebar.selectbox(
+    "Select Model",
+    model_names,
+    index=default_idx,
+    help="Choose which model to use for predictions. Defaults to the model with highest Recall.",
+)
+
+selected_model = all_results[selected_model_name]["model"]
+selected_metrics = all_results[selected_model_name]["metrics"]
+
+st.info(
+    f"Using **{selected_model_name}** "
+    f"(Recall = {selected_metrics['Recall']:.4f}, "
+    f"Precision = {selected_metrics['Precision']:.4f}) for predictions."
+)
+
+# ---- Threshold slider ----
+threshold = st.sidebar.slider(
+    "Fraud Threshold",
+    0.1, 0.9, 0.5, 0.05,
+    help="Probability threshold above which a transaction is flagged as fraud. "
+         "Lower = more sensitive (catches more fraud, more false alarms).",
+)
 
 # ---- Input form ----
 st.markdown("### Enter Transaction Details")
@@ -67,8 +95,8 @@ if submitted:
         city_pop=city_pop, distance_km=distance_km, gender=gender,
     )
 
-    proba = best_model.predict_proba(row)[0][1]
-    prediction = int(proba >= 0.5)
+    proba = selected_model.predict_proba(row)[0][1]
+    prediction = int(proba >= threshold)
     risk_pct = proba * 100
 
     st.markdown("---")
@@ -78,9 +106,9 @@ if submitted:
 
     with res_col1:
         if prediction == 0:
-            st.success("**Legitimate Transaction**")
+            st.success(" **Legitimate Transaction**")
         else:
-            st.error("**Suspicious — Potential Fraud!**")
+            st.error(" **Suspicious — Potential Fraud!**")
 
     with res_col2:
         st.metric("Risk Score", f"{risk_pct:.1f}%")
@@ -90,10 +118,12 @@ if submitted:
     st.progress(min(proba, 1.0))
 
     if risk_pct < 25:
-        st.caption("Low risk — transaction appears normal.")
+        st.caption(" Low risk — transaction appears normal.")
     elif risk_pct < 50:
-        st.caption("Moderate risk — consider additional verification.")
+        st.caption(" Moderate risk — consider additional verification.")
     elif risk_pct < 75:
-        st.caption("High risk — manual review recommended.")
+        st.caption(" High risk — manual review recommended.")
     else:
-        st.caption("Very high risk — strong indicators of fraud.")
+        st.caption(" Very high risk — strong indicators of fraud.")
+
+    st.caption(f"Threshold: {threshold:.2f} | Model: {selected_model_name}")
